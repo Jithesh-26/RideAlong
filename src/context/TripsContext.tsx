@@ -40,6 +40,7 @@ export const TripsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const createTrip = async (tripData: Omit<Trip, 'id' | 'createdAt' | 'confirmedCompanions' | 'status'>): Promise<Trip> => {
     const created = await api.createTrip(tripData);
+    setTrips(prev => [created, ...prev.filter(t => t.id !== created.id)]);
     await refreshTrips();
     return created;
   };

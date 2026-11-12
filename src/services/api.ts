@@ -79,6 +79,9 @@ async function fetchWithFallback<T>(url: string, options?: RequestInit, fallback
       const res = await fetch(url, options);
       if (res.ok) {
         return await res.json();
+      } else {
+        console.warn(`[RideAlong Service] Backend unreachable or returned ${res.status} at ${url}. Seamlessly using persistent local store.`);
+        isBackendAvailable = false;
       }
     } catch {
       console.warn(`[RideAlong Service] Backend unreachable at ${url}. Seamlessly using persistent local store.`);
@@ -305,9 +308,14 @@ export const api = {
         const stored = localStorage.getItem(STORAGE_KEYS.TRIPS);
         const trips: Trip[] = stored ? JSON.parse(stored) : INITIAL_TRIPS;
 
+        const storedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+        const users: Traveller[] = storedUsers ? JSON.parse(storedUsers) : DEMO_USERS;
+        const creator = users.find(u => u.id === tripData.creatorId) || users[0];
+
         const newTrip: Trip = {
           ...tripData,
           id: `trip_${Date.now()}`,
+          creator,
           confirmedCompanions: [],
           status: 'upcoming',
           createdAt: new Date().toISOString(),

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
@@ -23,6 +24,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 }) => {
   const { currentUser } = useAuth();
   const { createTrip } = useTrips();
+  const navigate = useNavigate();
 
   const [origin, setOrigin] = useState(defaultOrigin);
   const [destination, setDestination] = useState(defaultDestination);
@@ -90,6 +92,9 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
       setDate('');
       setStops([]);
       setNotes('');
+
+      // Navigate to My Trips so the user immediately sees their published journey
+      navigate('/my-trips');
     } catch (err: any) {
       setError(err.message || 'Failed to publish trip');
     } finally {

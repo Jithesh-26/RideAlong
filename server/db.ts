@@ -2,6 +2,14 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import {
+  DEMO_USERS,
+  INITIAL_TRIPS,
+  INITIAL_REQUESTS,
+  INITIAL_CONVERSATIONS,
+  INITIAL_MESSAGES,
+  INITIAL_TRUSTED_CONTACTS,
+} from '../src/services/sampleData.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -179,103 +187,98 @@ function seedDatabase() {
 
   const dummyPasswordHash = '$2b$10$demo_masked_secure_hash_not_plaintext';
 
-  // Seed users from sampleData
-  import('../src/services/sampleData.js').then(({ DEMO_USERS, INITIAL_TRIPS, INITIAL_REQUESTS, INITIAL_CONVERSATIONS, INITIAL_MESSAGES, INITIAL_TRUSTED_CONTACTS }) => {
-    const seedTx = db.transaction(() => {
-      for (const u of DEMO_USERS) {
-        insertUser.run(
-          u.id,
-          u.email,
-          dummyPasswordHash,
-          u.name,
-          u.avatar,
-          u.bio,
-          u.homeCity,
-          JSON.stringify(u.languages),
-          JSON.stringify(u.interests),
-          JSON.stringify(u.preferences),
-          JSON.stringify(u.privacy),
-          JSON.stringify(u.safetyStatus),
-          u.joinedDate,
-          u.completedTripsCount,
-          u.isDemo ? 1 : 0
-        );
-      }
+  const seedTx = db.transaction(() => {
+    for (const u of DEMO_USERS) {
+      insertUser.run(
+        u.id,
+        u.email,
+        dummyPasswordHash,
+        u.name,
+        u.avatar,
+        u.bio,
+        u.homeCity,
+        JSON.stringify(u.languages),
+        JSON.stringify(u.interests),
+        JSON.stringify(u.preferences),
+        JSON.stringify(u.privacy),
+        JSON.stringify(u.safetyStatus),
+        u.joinedDate,
+        u.completedTripsCount,
+        u.isDemo ? 1 : 0
+      );
+    }
 
-      for (const t of INITIAL_TRIPS) {
-        insertTrip.run(
-          t.id,
-          t.creatorId,
-          t.origin,
-          t.destination,
-          t.date,
-          t.departureTimeWindow,
-          t.transportMode,
-          JSON.stringify(t.stops),
-          t.neededCompanions,
-          JSON.stringify(t.confirmedCompanions),
-          t.notes,
-          t.status,
-          t.budgetShareRule,
-          JSON.stringify(t.languagesPreferred),
-          JSON.stringify(t.interestsPreferred),
-          t.createdAt
-        );
-      }
+    for (const t of INITIAL_TRIPS) {
+      insertTrip.run(
+        t.id,
+        t.creatorId,
+        t.origin,
+        t.destination,
+        t.date,
+        t.departureTimeWindow,
+        t.transportMode,
+        JSON.stringify(t.stops),
+        t.neededCompanions,
+        JSON.stringify(t.confirmedCompanions),
+        t.notes,
+        t.status,
+        t.budgetShareRule,
+        JSON.stringify(t.languagesPreferred),
+        JSON.stringify(t.interestsPreferred),
+        t.createdAt
+      );
+    }
 
-      for (const r of INITIAL_REQUESTS) {
-        insertRequest.run(
-          r.id,
-          r.senderId,
-          r.receiverId,
-          r.tripId || null,
-          r.status,
-          r.note,
-          r.createdAt,
-          r.updatedAt
-        );
-      }
+    for (const r of INITIAL_REQUESTS) {
+      insertRequest.run(
+        r.id,
+        r.senderId,
+        r.receiverId,
+        r.tripId || null,
+        r.status,
+        r.note,
+        r.createdAt,
+        r.updatedAt
+      );
+    }
 
-      for (const c of INITIAL_CONVERSATIONS) {
-        insertConv.run(
-          c.id,
-          JSON.stringify(c.participantIds),
-          c.tripId || null,
-          c.lastMessage,
-          c.lastMessageTime,
-          c.unreadCount
-        );
-      }
+    for (const c of INITIAL_CONVERSATIONS) {
+      insertConv.run(
+        c.id,
+        JSON.stringify(c.participantIds),
+        c.tripId || null,
+        c.lastMessage,
+        c.lastMessageTime,
+        c.unreadCount
+      );
+    }
 
-      for (const m of INITIAL_MESSAGES) {
-        insertMsg.run(
-          m.id,
-          m.conversationId,
-          m.senderId,
-          m.receiverId,
-          m.content,
-          m.timestamp,
-          m.isRead ? 1 : 0,
-          m.tripId || null
-        );
-      }
+    for (const m of INITIAL_MESSAGES) {
+      insertMsg.run(
+        m.id,
+        m.conversationId,
+        m.senderId,
+        m.receiverId,
+        m.content,
+        m.timestamp,
+        m.isRead ? 1 : 0,
+        m.tripId || null
+      );
+    }
 
-      for (const tc of INITIAL_TRUSTED_CONTACTS) {
-        insertContact.run(
-          tc.id,
-          tc.userId,
-          tc.name,
-          tc.phone,
-          tc.relationship,
-          tc.notifyOnTripStart ? 1 : 0,
-          tc.addedAt
-        );
-      }
-    });
-
-    seedTx();
-    console.log('[RideAlong DB] SQLite database initialized and seeded successfully.');
-  }).catch(err => {
-    console.error('[RideAlong DB] Seeding error:', err);
+    for (const tc of INITIAL_TRUSTED_CONTACTS) {
+      insertContact.run(
+        tc.id,
+        tc.userId,
+        tc.name,
+        tc.phone,
+        tc.relationship,
+        tc.notifyOnTripStart ? 1 : 0,
+        tc.addedAt
+      );
+    }
   });
+
+  seedTx();
+  console.log('[RideAlong DB] SQLite database initialized and seeded successfully.');
 }
